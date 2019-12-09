@@ -354,6 +354,7 @@ class S3fsStream extends StreamWrapper implements StreamWrapperInterface {
    *   A web accessible URL for the resource.
    */
   public function getExternalUrl() {
+    
     // In case we're on Windows, replace backslashes with forward-slashes.
     // Note that $uri is the unaltered value of the File's URI, while
     // $s3_key may be changed at various points to account for implementation
@@ -373,13 +374,17 @@ class S3fsStream extends StreamWrapper implements StreamWrapperInterface {
     // image_style_deliver(), which will create the derivative when that URL
     // gets requested.
     $path_parts = explode('/', $s3_key);
+    //ksm($path_parts); 
     if ($path_parts[0] == 'styles' && substr($s3_key, -4) != '.css') {
+      //ksm($this->uri); // returns public://styles/large/public/test/006.jpg
       if (!$this->getS3fsObject($this->uri)) {
+        ksm($this->getS3fsObject($this->uri));
         // The style delivery path looks like: s3/files/styles/thumbnail/...
         // And $path_parts looks like ['styles', 'thumbnail', ...],
         // so just prepend s3/files/.
         array_unshift($path_parts, 's3', 'files');
         $path = implode('/', $path_parts);
+        //ksm($GLOBALS['base_url'] . '/' . UrlHelper::encodePath($path));
         return $GLOBALS['base_url'] . '/' . UrlHelper::encodePath($path);
       }
     }
@@ -1040,6 +1045,7 @@ class S3fsStream extends StreamWrapper implements StreamWrapperInterface {
    *   An array if the $uri exists, otherwise FALSE.
    */
   protected function getS3fsObject($uri) {
+    
     // For the root directory, return metadata for a generic folder.
     if (file_uri_target($uri) == '') {
       return $this->s3fs->convertMetadata('/', []);
@@ -1062,6 +1068,7 @@ class S3fsStream extends StreamWrapper implements StreamWrapperInterface {
         return $this->triggerError($e->getMessage());
       }
     }
+    //ksm($metadata); // returns NULL for non existing image in cache.
     return $metadata;
   }
 
@@ -1287,6 +1294,7 @@ class S3fsStream extends StreamWrapper implements StreamWrapperInterface {
   protected function convertUriToKeyedPath($uri, $prepend_bucket = TRUE) {
     // Remove the protocol.
     $parts = explode('://', $uri);
+    //ksm($parts);
 
     if (!empty($parts[1])) {
       // public:// file are all placed in the s3fs_public_folder.

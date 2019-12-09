@@ -81,6 +81,15 @@ class SettingsForm extends ConfigFormBase {
       ),
     ];
 
+    $form['credentials']['use_ecs_credentail'] = [
+      '#type' => 'checkbox',
+      '#title' => $this->t('Use ECS Credentials'),
+      '#default_value' => $config->get('use_ecs_credentail'),
+      '#description' => $this->t(
+        'If your Drupal site is running on an Amazon ECS, you may use the ECS Credentials from ECS environment variable, rather than setting your AWS credentials directly.'
+      ),
+    ];
+
     $form['credentials']['access_key'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Amazon Web Services Access Key'),
@@ -442,6 +451,7 @@ class SettingsForm extends ConfigFormBase {
     $values = $form_state->getValues();
     $this->config('s3fs.settings')
       ->set('use_instance_profile', $values['use_instance_profile'])
+      ->set('use_ecs_credentail', $values['use_ecs_credentail'])
       ->set('credentials_file', $values['credentials_file'])
       ->set('bucket', $values['bucket'])
       ->set('region', $values['region'])

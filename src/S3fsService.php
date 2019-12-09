@@ -57,10 +57,10 @@ class S3fsService implements S3fsServiceInterface {
     if (!class_exists('Aws\S3\S3Client')) {
       $errors[] = $this->t('Cannot load Aws\S3\S3Client class. Please ensure that the aws sdk php library is installed correctly.');
     }
-    elseif (!$config['use_instance_profile'] && (!Settings::get('s3fs.access_key') || !Settings::get('s3fs.secret_key'))) {
+    elseif (!$config['use_instance_profile'] && (!Settings::get('s3fs.access_key') || !Settings::get('s3fs.secret_key')) && !$config['use_ecs_credentail']) {
       $errors[] = $this->t("Your AWS credentials have not been properly configured.
-        Please set them on the S3 File System admin/config/media/s3fs page or
-        set \$settings['s3fs.access_key'] and \$settings['s3fs.secret_key'] in settings.php.");
+         Please set them on the S3 File System admin/config/media/s3fs page or
+         set \$settings['s3fs.access_key'] and \$settings['s3fs.secret_key'] in settings.php.");
     }
 
     if (empty($config['bucket'])) {
@@ -160,6 +160,11 @@ class S3fsService implements S3fsServiceInterface {
         // the ini file on every API operation.
         $provider = CredentialProvider::memoize($provider);
         $client_config['credentials'] = $provider;
+      }
+      //Use ECS Credential
+      elseif(!empty($config['use_ecs_credentail'])) {
+        //Use credential from ECS
+        $provider = CredentialProvider::ecsCredentials();
       }
       else {
         $access_key = Settings::get('s3fs.access_key', '');

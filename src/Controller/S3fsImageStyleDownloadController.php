@@ -41,8 +41,15 @@ class S3fsImageStyleDownloadController extends ImageStyleDownloadController {
    * @see \Drupal\image\Controller\ImageStyleDownloadController::deliver()
    */
   public function deliver(Request $request, $scheme, ImageStyleInterface $image_style) {
+    // this is the entry point
+    // http://pl.circlek.lndo.site/s3/files/styles/large/public?file=test/salad_vegetables_delicious_diet_71637_1920x1080.jpg?itok=9bCEMrUY
+
+    // this is the working point, this will redirect to styled image on s3
+    // http://pl.circlek.lndo.site/s3/files/styles/large/public?file=test/salad_vegetables_delicious_diet_71637_1920x1080.jpg?itok=9bCEMrUY
     $target = $request->query->get('file');
     $image_uri = $scheme . '://' . $target;
+    ksm('here');
+    //ksm($image_uri);
 
     // Check that the style is defined, the scheme is valid, and the image
     // derivative token is valid. Sites which require image derivatives to be
@@ -57,14 +64,19 @@ class S3fsImageStyleDownloadController extends ImageStyleDownloadController {
     // starts with styles/.
     $valid = !empty($image_style) && \Drupal::service('file_system')->validScheme($scheme);
     if (!$this->config('image.settings')->get('allow_insecure_derivatives') || strpos(ltrim($target, '\/'), 'styles/') === 0) {
-      $valid &= $request->query->get(IMAGE_DERIVATIVE_TOKEN) === $image_style->getPathToken($image_uri);
+      
+      //$valid &= $request->query->get(IMAGE_DERIVATIVE_TOKEN) === $image_style->getPathToken($image_uri);
+      $valid = $image_style->getPathToken($image_uri);
+      //ksm($valid);
+      //ksm($request->query->get(IMAGE_DERIVATIVE_TOKEN));
+      //ksm($image_style->getPathToken($image_uri));
     }
     if (!$valid) {
       throw new AccessDeniedHttpException();
     }
 
     $derivative_uri = $image_style->buildUri($image_uri);
-
+    //ksm('here');
     // Private scheme use:
     // \Drupal\image\Controller\ImageStyleDownloadController::deliver()
     // instead of this.

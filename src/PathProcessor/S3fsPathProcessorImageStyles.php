@@ -31,7 +31,9 @@ class S3fsPathProcessorImageStyles implements InboundPathProcessorInterface {
    * {@inheritdoc}
    */
   public function processInbound($path, Request $request) {
+    
     if ($this->isImageStylePath($path)) {
+      
       // Strip out path prefix.
       $rest = preg_replace('|^' . preg_quote(static::IMAGE_STYLE_PATH_PREFIX, '|') . '|', '', $path);
 
@@ -42,11 +44,13 @@ class S3fsPathProcessorImageStyles implements InboundPathProcessorInterface {
         if ($this->isValidScheme($scheme)) {
           // Set the file as query parameter.
           $request->query->set('file', $file);
+          dd($file);
           $path = static::IMAGE_STYLE_PATH_PREFIX . $image_style . '/' . $scheme;
+          dd($path);
         }
       }
     }
-
+    
     return $path;
   }
 
